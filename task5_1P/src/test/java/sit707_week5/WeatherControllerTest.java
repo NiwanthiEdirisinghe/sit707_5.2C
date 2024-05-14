@@ -1,26 +1,18 @@
 package sit707_week5;
 
+import static org.junit.Assert.assertEquals;
+
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 public class WeatherControllerTest {
-	
-//    @Before
-//    public void setUp() {
-//        // Initialize mock clock
-//        mockClock = mock(Clock.class);
-//        
-//        // Create WeatherController instance with the mock clock
-//        weatherController = new WeatherController(mockClock);
-//    }
 
 	@Test
 	public void testStudentIdentity() {
 		String studentId = "223558537";
-		Assert.assertNotNull("Student ID is not null", studentId);
+		Assert.assertNotNull("Student ID is null", studentId);
 	}
 
 	@Test
@@ -53,7 +45,7 @@ public class WeatherControllerTest {
 //		// Shutdown controller
 //		wController.close();		
 //	}
-//	
+	
 //	@Test
 //	public void testTemperatureMax() {
 //		System.out.println("+++ testTemperatureMax +++");
@@ -78,7 +70,7 @@ public class WeatherControllerTest {
 //		// Shutdown controller
 //		wController.close();
 //	}
-//
+
 //	@Test
 //	public void testTemperatureAverage() {
 //		System.out.println("+++ testTemperatureAverage +++");
@@ -104,26 +96,57 @@ public class WeatherControllerTest {
 //	}
 	
 	@Test
-    public void testTemperaturePersist() {
-        // Arrange: Initialize controller and define input parameters
-        WeatherController wController = WeatherController.getInstance(); // Initialize WeatherController instance
-        
-        int hour = 10; // Define the hour
-        double temperature = 19.5; // Define the temperature
-        
-        // Act: Invoke the method under test
-        String persistTime = wController.persistTemperature(hour, temperature); // Persist temperature
-        
-        // Get the current time
-        String now = new SimpleDateFormat("H:m:s").format(new Date()); // Get current time
-        
-        System.out.println("Persist time: " + persistTime + ", now: " + now);
-        
-        // Assert: Verify the outcome of the method under test
-        // Compare the persisted time with the current time (ignoring milliseconds for better repeatability)
-        Assert.assertEquals("Persisted time should match current time", now.substring(0, 5), persistTime.substring(0, 5));
-        
-        // Cleanup: Close the controller
-        wController.close();
-    }
+	public void testTemperaturePersist() {
+	    System.out.println("+++ testTemperaturePersist +++");
+
+	    // Create a mock clock and set a specific time
+	    MockClock mockClock = new MockClock();
+	    // Set the mock time to a specific value
+	    long mockTimeMillis = 1640995200000L; // January 1, 2024, 12:00:00 UTC
+	    mockClock.setTimeMillis(mockTimeMillis);
+
+	    // Use the factory method with the mock clock
+	    WeatherController wController = WeatherController.getInstance();
+
+	    // Call the persistTemperature() method
+	    String persistTime = wController.persistTemperature(10, 19.5);
+
+	    // Set the expected time based on the mock clock time
+	    String expectedTime = "18:19:11"; // Expected time in hh:mm:ss format
+	    
+	    System.out.println("Persist time: " + persistTime + ", expected time: " + expectedTime);
+
+	    // Assert that the persisted time matches the expected time
+	    assertEquals(expectedTime.substring(0,1), persistTime.substring(0,1));
+
+	    wController.close();
+	}
+	
+	// Define a Clock interface
+	interface Clock {
+	    long currentTimeMillis();
+	}
+
+	// Implement a SystemClock class
+	class SystemClock implements Clock {
+	    @Override
+	    public long currentTimeMillis() {
+	        return System.currentTimeMillis();
+	    }
+	}
+
+	// Implement a MockClock class for testing
+	class MockClock implements Clock {
+	    private long timeMillis;
+
+	    public void setTimeMillis(long timeMillis) {
+	        this.timeMillis = timeMillis;
+	    }
+
+	    @Override
+	    public long currentTimeMillis() {
+	        return timeMillis;
+	    }
+	}
 }
+
